@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Perfect Love Proposal — Manii × Ayshu</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,600&display=swap" rel="stylesheet">
+
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:#05050b;
+  font-family:'Playfair Display',serif;
+  color:white;
+}
+
+/* canvas */
+canvas{
+  position:fixed;
+  inset:0;
+  z-index:0;
+}
+
+/* nebula glow */
+#nebula{
+  position:fixed;
+  inset:-20%;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(180,120,255,.18), transparent 45%),
+    radial-gradient(circle at 70% 60%, rgba(255,120,200,.18), transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(120,200,255,.15), transparent 50%);
+  animation: nebulaMove 30s ease-in-out infinite alternate;
+  z-index:1;
+}
+
+/* 3D space */
+#space{
+  position:fixed;
+  inset:0;
+  perspective:1400px;
+  pointer-events:none;
+  z-index:2;
+}
+
+/* 3D heart */
+.heart3d{
+  position:absolute;
+  width:64px;
+  height:64px;
+  transform-style:preserve-3d;
+  animation: float3d linear infinite;
+}
+
+.heart3d::before,
+.heart3d::after{
+  content:"";
+  position:absolute;
+  width:32px;
+  height:52px;
+  background:linear-gradient(145deg,#ff9ecf,#ff3f8e);
+  border-radius:32px 32px 0 0;
+  box-shadow:
+    0 0 35px rgba(255,120,180,.9),
+    inset 0 0 12px rgba(255,255,255,.5);
+}
+
+.heart3d::before{
+  left:32px;
+  transform:rotate(-45deg);
+  transform-origin:0 100%;
+}
+.heart3d::after{
+  left:0;
+  transform:rotate(45deg);
+  transform-origin:100% 100%;
+}
+
+/* text overlay */
+#overlay{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+  z-index:4;
+}
+
+#text{
+  text-align:center;
+  max-width:950px;
+  padding:40px;
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 3s ease, transform 3s ease;
+}
+
+h1{
+  font-size:46px;
+  margin-bottom:18px;
+  letter-spacing:1px;
+}
+
+p{
+  font-size:23px;
+  line-height:1.8;
+  opacity:.92;
+}
+
+/* name */
+.name{
+  font-size:42px;
+  margin:35px 0;
+  letter-spacing:4px;
+  background:linear-gradient(90deg,#ffd6e8,#ffffff,#ffd6e8);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(255,180,220,.8));
+  animation:namePulse 3.5s ease-in-out infinite;
+}
+
+/* signature */
+.signature{
+  margin-top:45px;
+  font-size:28px;
+  font-style:italic;
+}
+
+/* animations */
+@keyframes float3d{
+  from{
+    transform:translate3d(var(--x),110vh,var(--z))
+      rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    opacity:0;
+  }
+  to{
+    transform:translate3d(var(--x),-25vh,var(--z))
+      rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+    opacity:1;
+  }
+}
+
+@keyframes nebulaMove{
+  from{transform:translateY(-40px)}
+  to{transform:translateY(40px)}
+}
+
+@keyframes namePulse{
+  0%{filter:drop-shadow(0 0 15px rgba(255,180,220,.6))}
+  50%{filter:drop-shadow(0 0 35px rgba(255,200,240,1))}
+  100%{filter:drop-shadow(0 0 15px rgba(255,180,220,.6))}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="c"></canvas>
+<div id="nebula"></div>
+<div id="space"></div>
+
+<div id="overlay">
+  <div id="text">
+    <h1>I never asked myself “who?”</h1>
+    <p>
+      Somehow, my mind skipped the question<br>
+      and landed straight on an answer.
+    </p>
+
+    <div class="name">AYSHU</div>
+
+    <p>
+      This isn’t a proposal.<br><br>
+      It’s a reminder — that in a world full of choices,<br>
+      I found peace in one person.
+    </p>
+
+    <div class="signature">— Manii</div>
+  </div>
+</div>
+
+<!-- MUSIC -->
+<audio id="bgm" preload="auto" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* ===== PARTICLES ===== */
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+let w,h;
+
+function resize(){
+  w=canvas.width=innerWidth;
+  h=canvas.height=innerHeight;
+}
+resize();
+addEventListener("resize",resize);
+
+const particles=[];
+const COUNT=4200;
+
+class Particle{
+  constructor(){this.reset();}
+  reset(){
+    this.x=Math.random()*w;
+    this.y=Math.random()*h;
+    this.vx=(Math.random()-.5)*0.28;
+    this.vy=(Math.random()-.5)*0.28;
+    this.s=Math.random()*1.6+.4;
+    this.a=Math.random()*.8+.2;
+  }
+  update(){
+    this.x+=this.vx;
+    this.y+=this.vy;
+    if(this.x<0||this.x>w||this.y<0||this.y>h) this.reset();
+  }
+  draw(){
+    ctx.fillStyle=`rgba(255,215,195,${this.a})`;
+    ctx.fillRect(this.x,this.y,this.s,this.s);
+  }
+}
+
+for(let i=0;i<COUNT;i++) particles.push(new Particle());
+
+function animate(){
+  ctx.clearRect(0,0,w,h);
+  particles.forEach(p=>{p.update();p.draw();});
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* glow */
+setInterval(()=>{
+  ctx.globalCompositeOperation="lighter";
+  ctx.fillStyle="rgba(255,200,255,0.025)";
+  ctx.fillRect(0,0,w,h);
+  ctx.globalCompositeOperation="source-over";
+},140);
+
+/* 3D hearts */
+const space=document.getElementById("space");
+function spawnHeart(){
+  const h=document.createElement("div");
+  h.className="heart3d";
+  h.style.left=Math.random()*100+"vw";
+  h.style.setProperty("--x","0px");
+  h.style.setProperty("--z",(Math.random()*-1000)+"px");
+  h.style.animationDuration=22+Math.random()*14+"s";
+  space.appendChild(h);
+  setTimeout(()=>h.remove(),36000);
+}
+setInterval(spawnHeart,1200);
+
+/* reveal text */
+setTimeout(()=>{
+  const t=document.getElementById("text");
+  t.style.opacity=1;
+  t.style.transform="translateY(0)";
+},3000);
+
+/* MUSIC — starts on first click (local + GitHub safe) */
+const bgm=document.getElementById("bgm");
+function startMusic(){
+  bgm.volume=0;
+  bgm.play().catch(()=>{});
+  let v=0;
+  const fade=setInterval(()=>{
+    v+=0.02;
+    bgm.volume=Math.min(v,0.35);
+    if(v>=0.35) clearInterval(fade);
+  },200);
+  document.removeEventListener("click",startMusic);
+  document.removeEventListener("touchstart",startMusic);
+}
+document.addEventListener("click",startMusic);
+document.addEventListener("touchstart",startMusic);
+</script>
+
+</body>
+</html>
