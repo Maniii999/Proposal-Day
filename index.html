@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Perfect Love Proposal — Manii × Ayshu</title>
+<title>Perfect Love — Manii × Ayshu</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,600&display=swap" rel="stylesheet">
 
@@ -44,7 +44,7 @@ canvas{
   z-index:2;
 }
 
-/* 3D heart */
+/* 3D hearts */
 .heart3d{
   position:absolute;
   width:64px;
@@ -100,7 +100,6 @@ canvas{
 h1{
   font-size:46px;
   margin-bottom:18px;
-  letter-spacing:1px;
 }
 
 p{
@@ -128,6 +127,22 @@ p{
   font-style:italic;
 }
 
+/* tap overlay (MOBILE FIX) */
+#tapStart{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(5,5,11,.6);
+  backdrop-filter:blur(6px);
+  font-size:22px;
+  letter-spacing:1px;
+  z-index:10;
+  cursor:pointer;
+  animation:pulse 2s ease-in-out infinite;
+}
+
 /* animations */
 @keyframes float3d{
   from{
@@ -151,6 +166,12 @@ p{
   0%{filter:drop-shadow(0 0 15px rgba(255,180,220,.6))}
   50%{filter:drop-shadow(0 0 35px rgba(255,200,240,1))}
   100%{filter:drop-shadow(0 0 15px rgba(255,180,220,.6))}
+}
+
+@keyframes pulse{
+  0%{opacity:.6}
+  50%{opacity:1}
+  100%{opacity:.6}
 }
 </style>
 </head>
@@ -181,13 +202,14 @@ p{
   </div>
 </div>
 
-<!-- MUSIC -->
+<div id="tapStart">Tap anywhere to begin 💖</div>
+
 <audio id="bgm" preload="auto" loop>
   <source src="music.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-/* ===== PARTICLES ===== */
+/* canvas particles */
 const canvas=document.getElementById("c");
 const ctx=canvas.getContext("2d");
 let w,h;
@@ -261,9 +283,11 @@ setTimeout(()=>{
   t.style.transform="translateY(0)";
 },3000);
 
-/* MUSIC — starts on first click (local + GitHub safe) */
+/* music (mobile + desktop safe) */
 const bgm=document.getElementById("bgm");
-function startMusic(){
+const tap=document.getElementById("tapStart");
+
+tap.addEventListener("click",()=>{
   bgm.volume=0;
   bgm.play().catch(()=>{});
   let v=0;
@@ -272,11 +296,8 @@ function startMusic(){
     bgm.volume=Math.min(v,0.35);
     if(v>=0.35) clearInterval(fade);
   },200);
-  document.removeEventListener("click",startMusic);
-  document.removeEventListener("touchstart",startMusic);
-}
-document.addEventListener("click",startMusic);
-document.addEventListener("touchstart",startMusic);
+  tap.style.display="none";
+});
 </script>
 
 </body>
